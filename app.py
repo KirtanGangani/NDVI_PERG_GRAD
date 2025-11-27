@@ -31,7 +31,7 @@ def one_time_setup():
     if os.path.exists(credentials_path):
         pass  # Earth Engine credentials already exist
     elif "EE" in os.environ:  # write the credentials to the file
-        ee_credentials = os.environ.get("EE")
+        ee_credentials = os.environ.get("EE_GRAD")
         os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
         with open(credentials_path, "w") as f:
             f.write(ee_credentials)
