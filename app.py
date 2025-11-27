@@ -27,19 +27,24 @@ app = FastAPI()
 # --- Helper Functions ---
 
 def one_time_setup():
-    credentials_path = os.path.expanduser("~/.config/earthengine/credentials")
-    if os.path.exists(credentials_path):
-        pass  # Earth Engine credentials already exist
-    elif "EE" in os.environ:  # write the credentials to the file
-        ee_credentials = os.environ.get("EE_GRAD")
-        os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
-        with open(credentials_path, "w") as f:
-            f.write(ee_credentials)
-    else:
-        raise ValueError(
-            f"Earth Engine credentials not found at {credentials_path} or in the environment variable 'EE'"
-        )
-    ee.Initialize()
+    """Initializes the Earth Engine API."""
+    try:
+        # Attempt to initialize with default credentials
+        ee.Initialize()
+    except Exception:
+        try:
+            # Fallback to service account credentials if default init fails
+            credentials_path = os.path.expanduser("~/.config/earthengine/credentials.json")
+            ee_credentials = os.environ.get("EE")
+            if ee_credentials:
+                os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
+                with open(credentials_path, "w") as f:
+                    f.write(ee_credentials)
+                credentials = ee.ServiceAccountCredentials('ujjwal@ee-ujjwaliitd.iam.gserviceaccount.com', credentials_path)
+                ee.Initialize(credentials, project='ee-ujjwaliitd')
+        except Exception as inner_e:
+            # If the fallback also fails, print the error
+            print(f"Earth Engine initialization failed: {inner_e}")
 
 
 def _process_spatial_data(data_bytes: BytesIO) -> gpd.GeoDataFrame:
@@ -904,8 +909,6 @@ for idx in ["NDVI", "EVI", "EVI2", "RandomForest", "CI", "GujVDI", "MNDWI", "SAV
 app = gr.mount_gradio_app(app, demo, path="/")
 
 
-import uvicorn
-PORT = int(os.environ.get("PORT", 8080))  # fallback to 8080 if PORT is not set
-
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=PORT)
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=7860)
