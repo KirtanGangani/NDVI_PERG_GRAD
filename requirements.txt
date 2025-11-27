@@ -1,0 +1,12 @@
+geopandas
+geemap
+leafmap
+pandas
+pyproj
+kml2geojson
+fastapi
+requests
+uvicorn
+gradio
+python-multipart
+lxml
