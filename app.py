@@ -35,7 +35,7 @@ def one_time_setup():
         try:
             # Fallback to service account credentials if default init fails
             credentials_path = os.path.expanduser("~/.config/earthengine/credentials.json")
-            ee_credentials = os.environ.get("EE")
+            ee_credentials = os.environ.get("EE_GRAD")
             if ee_credentials:
                 os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
                 with open(credentials_path, "w") as f:
