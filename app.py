@@ -904,6 +904,8 @@ for idx in ["NDVI", "EVI", "EVI2", "RandomForest", "CI", "GujVDI", "MNDWI", "SAV
 app = gr.mount_gradio_app(app, demo, path="/")
 
 
+import uvicorn
+PORT = int(os.environ.get("PORT", 8080))  # fallback to 8080 if PORT is not set
+
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
