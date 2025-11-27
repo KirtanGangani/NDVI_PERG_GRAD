@@ -26,26 +26,34 @@ app = FastAPI()
 
 # --- Helper Functions ---
 
-def one_time_setup():
-    """Initializes the Earth Engine API."""
-    try:
-        # Attempt to initialize with default credentials
-        ee.Initialize()
-    except Exception:
-        try:
-            # Fallback to service account credentials if default init fails
-            credentials_path = os.path.expanduser("~/.config/earthengine/credentials.json")
-            ee_credentials = os.environ.get("EE_GRAD")
-            if ee_credentials:
-                os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
-                with open(credentials_path, "w") as f:
-                    f.write(ee_credentials)
-                credentials = ee.ServiceAccountCredentials('ujjwal@ee-ujjwaliitd.iam.gserviceaccount.com', credentials_path)
-                ee.Initialize(credentials, project='ee-ujjwaliitd')
-        except Exception as inner_e:
-            # If the fallback also fails, print the error
-            print(f"Earth Engine initialization failed: {inner_e}")
+import os
+import ee
 
+def one_time_setup():
+    credentials_path = os.path.expanduser("~/.config/earthengine/credentials")
+    
+    if os.path.exists(credentials_path):
+        print(f"Using existing credentials from {credentials_path}")
+
+    elif "EE_GRAD" in os.environ:
+        ee_credentials = os.environ.get("EE_GRAD")
+        os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
+        with open(credentials_path, "w") as f:
+            f.write(ee_credentials)
+        print(f"Wrote credentials from EE_GRAD to {credentials_path}")
+    
+    else:
+        raise ValueError(
+            f"Earth Engine credentials not found at {credentials_path} or in environment variable 'EE_GRAD'"
+        )
+    
+    try:
+        ee.Initialize()
+        print("Earth Engine initialized successfully")
+    except Exception as e:
+        raise Exception(f"Earth Engine initialization failed: {e}")
+
+one_time_setup()
 
 def _process_spatial_data(data_bytes: BytesIO) -> gpd.GeoDataFrame:
     """Core function to process bytes of a KML or GeoJSON file."""
