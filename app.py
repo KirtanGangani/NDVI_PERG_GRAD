@@ -29,31 +29,44 @@ app = FastAPI()
 import os
 import ee
 
-def one_time_setup():
-    credentials_path = os.path.expanduser("~/.config/earthengine/credentials")
-    
-    if os.path.exists(credentials_path):
-        print(f"Using existing credentials from {credentials_path}")
+import ee
+import os
 
-    elif "EE_GRAD" in os.environ:
-        ee_credentials = os.environ.get("EE_GRAD")
-        os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
-        with open(credentials_path, "w") as f:
-            f.write(ee_credentials)
-        print(f"Wrote credentials from EE_GRAD to {credentials_path}")
-    
-    else:
-        raise ValueError(
-            f"Earth Engine credentials not found at {credentials_path} or in environment variable 'EE_GRAD'"
-        )
-    
+def cloud_run_ee_setup():
     try:
-        ee.Initialize()
-        print("Earth Engine initialized successfully")
+        ee.Initialize(project='galvanic-ripsaw-477107-g1')
+        print(f"Earth Engine initialized successfully for project: {'galvanic-ripsaw-477107-g1'}")
     except Exception as e:
+        print("Earth Engine initialization failed! Check SA attachment and roles.")
         raise Exception(f"Earth Engine initialization failed: {e}")
 
-one_time_setup()
+cloud_run_ee_setup()
+
+# def one_time_setup():
+#     credentials_path = os.path.expanduser("~/.config/earthengine/credentials")
+    
+#     if os.path.exists(credentials_path):
+#         print(f"Using existing credentials from {credentials_path}")
+
+#     elif "EE_GRAD" in os.environ:
+#         ee_credentials = os.environ.get("EE_GRAD")
+#         os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
+#         with open(credentials_path, "w") as f:
+#             f.write(ee_credentials)
+#         print(f"Wrote credentials from EE_GRAD to {credentials_path}")
+    
+#     else:
+#         raise ValueError(
+#             f"Earth Engine credentials not found at {credentials_path} or in environment variable 'EE_GRAD'"
+#         )
+    
+#     try:
+#         ee.Initialize()
+#         print("Earth Engine initialized successfully")
+#     except Exception as e:
+#         raise Exception(f"Earth Engine initialization failed: {e}")
+
+# one_time_setup()
 
 def _process_spatial_data(data_bytes: BytesIO) -> gpd.GeoDataFrame:
     """Core function to process bytes of a KML or GeoJSON file."""
