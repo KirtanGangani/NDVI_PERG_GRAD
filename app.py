@@ -32,15 +32,27 @@ import ee
 import ee
 import os
 
-def cloud_run_ee_setup():
-    try:
-        ee.Initialize(project='galvanic-ripsaw-477107-g1')
-        print(f"Earth Engine initialized successfully for project: {'galvanic-ripsaw-477107-g1'}")
-    except Exception as e:
-        print("Earth Engine initialization failed! Check SA attachment and roles.")
-        raise Exception(f"Earth Engine initialization failed: {e}")
+import ee
+import os
 
-cloud_run_ee_setup()
+GCP_PROJECT_ID = 'galvanic-ripsaw-477107-g1' 
+EE_INITIALIZED = False
+
+def one_time_setup():
+    global EE_INITIALIZED
+    
+    if EE_INITIALIZED:
+        return
+
+    print("--- Starting Earth Engine initialization (On-Demand) ---")
+
+    try:
+        ee.Initialize(project=GCP_PROJECT_ID)
+        EE_INITIALIZED = True
+        print("Earth Engine initialized successfully.")
+    except Exception as e:
+        print(f"EE Initialization FAILED: {e}")
+        raise
 
 # def one_time_setup():
 #     credentials_path = os.path.expanduser("~/.config/earthengine/credentials")
